@@ -1,42 +1,95 @@
 import numpy as np
 
-# Fungsi untuk membandingkan solusi yang diberikan oleh kedua metode
-def compare_solutions(solusi1, solusi2):
-    if np.allclose(solusi1, solusi2):
-        print("Solusi yang diberikan oleh kedua metode sama.")
-    else:
-        print("Solusi yang diberikan oleh kedua metode berbeda.")
+def crout_decomposition(A):
+    n = len(A)
+    L = np.zeros((n, n))
+    U = np.zeros((n, n))
 
-# Pengujian fungsi solve_linear_equation menggunakan metode invers matriks
-def test_solve_linear_equation_inverse():
-    A = np.array([[3, 4], [5, 6]])
-    b = np.array([9, 11])
-    solusi_inverse = solve_linear_equation(A, b)
-    print("Solusi menggunakan metode invers matriks:", solusi_inverse)
+    for i in range(n):
+        U[i][i] = 1
 
-# Pengujian fungsi solve_linear_equation menggunakan metode Crout decomposition
-def test_solve_linear_equation_crout():
-    A = np.array([[3, 2], [4, -1]])
-    b = np.array([7, 2])
-    solusi_crout = solve_linear_equation(A, b)
-    print("Solusi menggunakan metode Crout decomposition:", solusi_crout)
+    for k in range(n):
+        for i in range(k, n):
+            sum = 0
+            for p in range(k):
+                sum += L[i][p] * U[p][k]
+            L[i][k] = A[i][k] - sum
 
-# Pengujian fungsi solve_linear_equation menggunakan metode LU Gauss decomposition
-def test_solve_linear_equation_lu_gauss():
-    A = np.array([[3, 2], [4, -1]])
-    b = np.array([7, 2])
-    solusi_lu_gauss = solve_linear_equation(A, b)
-    print("Solusi menggunakan metode LU Gauss decomposition:", solusi_lu_gauss)
+        for j in range(k + 1, n):
+            sum = 0
+            for p in range(k):
+                sum += L[k][p] * U[p][j]
+            if L[k][k] == 0:
+                return "Error: Matriks singular"
+            U[k][j] = (A[k][j] - sum) / L[k][k]
 
-# Pengujian
-if __name__ == "__main__":
-    test_solve_linear_equation_inverse()
-    test_solve_linear_equation_crout()
-    test_solve_linear_equation_lu_gauss()
+    return L, U
 
-    # Membandingkan solusi dari dua metode
-    A = np.array([[3, 2], [4, -1]])
-    b = np.array([7, 2])
-    solusi_inverse = solve_linear_equation(A, b)
-    solusi_crout = solve_linear_equation(A, b)
-    compare_solutions(solusi_inverse, solusi_crout)
+def lu_gauss_decomposition(A):
+    n = len(A)
+    L = np.zeros((n, n))
+    U = np.zeros((n, n))
+
+    for i in range(n):
+        L[i][i] = 1
+
+    for k in range(n):
+        for j in range(k, n):
+            U[k][j] = A[k][j]
+            for p in range(k):
+                U[k][j] -= L[k][p] * U[p][j]
+
+        for i in range(k + 1, n):
+            L[i][k] = A[i][k]
+            for p in range(k):
+                L[i][k] -= L[i][p] * U[p][k]
+            L[i][k] /= U[k][k]
+
+    return L, U
+
+def solve_linear_equation(A, b):
+    L_crout, U_crout = crout_decomposition(A)
+    L_gauss, U_gauss = lu_gauss_decomposition(A)
+
+    # Menghitung Ly = b dengan metode Crout
+    n = len(A)
+    y_crout = np.zeros(n)
+    for i in range(n):
+        y_crout[i] = b[i]
+        for j in range(i):
+            y_crout[i] -= L_crout[i][j] * y_crout[j]
+
+    # Menghitung Ux = y dengan metode Crout
+    x_crout = np.zeros(n)
+    for i in range(n - 1, -1, -1):
+        x_crout[i] = y_crout[i]
+        for j in range(i + 1, n):
+            x_crout[i] -= U_crout[i][j] * x_crout[j]
+        x_crout[i] /= U_crout[i][i]
+
+    # Menghitung Ly = b dengan metode LU Gauss
+    y_gauss = np.zeros(n)
+    for i in range(n):
+        y_gauss[i] = b[i]
+        for j in range(i):
+            y_gauss[i] -= L_gauss[i][j] * y_gauss[j]
+
+    # Menghitung Ux = y dengan metode LU Gauss
+    x_gauss = np.zeros(n)
+    for i in range(n - 1, -1, -1):
+        x_gauss[i] = y_gauss[i]
+        for j in range(i + 1, n):
+            x_gauss[i] -= U_gauss[i][j] * x_gauss[j]
+        x_gauss[i] /= U_gauss[i][i]
+
+    return x_crout, x_gauss
+
+# Contoh penggunaan
+A = np.array([[3, 2], [4, -1]])
+b = np.array([7, 2])
+
+solusi_crout, solusi_gauss = solve_linear_equation(A, b)
+print("Solusi dari sistem persamaan linear (menggunakan Crout):")
+print(solusi_crout)
+print("Solusi dari sistem persamaan linear (menggunakan LU Gauss):")
+print(solusi_gauss)
