@@ -1,5 +1,14 @@
 import numpy as np
 
+def solve_linear_equation(A, b):
+    # Menghitung invers dari matriks A
+    A_inv = np.linalg.inv(A)
+    
+    # Menghitung solusi dari sistem persamaan linear
+    x = np.dot(A_inv, b)
+    
+    return x
+
 def crout_decomposition(A):
     n = len(A)
     L = np.zeros((n, n))
@@ -25,6 +34,27 @@ def crout_decomposition(A):
 
     return L, U
 
+def solve_linear_equation_crout(A, b):
+    L, U = crout_decomposition(A)
+    
+    # Menghitung Ly = b
+    n = len(A)
+    y = np.zeros(n)
+    for i in range(n):
+        y[i] = b[i]
+        for j in range(i):
+            y[i] -= L[i][j] * y[j]
+
+    # Menghitung Ux = y
+    x = np.zeros(n)
+    for i in range(n - 1, -1, -1):
+        x[i] = y[i]
+        for j in range(i + 1, n):
+            x[i] -= U[i][j] * x[j]
+        x[i] /= U[i][i]
+
+    return x
+
 def lu_gauss_decomposition(A):
     n = len(A)
     L = np.zeros((n, n))
@@ -47,49 +77,44 @@ def lu_gauss_decomposition(A):
 
     return L, U
 
-def solve_linear_equation(A, b):
-    L_crout, U_crout = crout_decomposition(A)
-    L_gauss, U_gauss = lu_gauss_decomposition(A)
-
-    # Menghitung Ly = b dengan metode Crout
+def solve_linear_equation_lu_gauss(A, b):
+    L, U = lu_gauss_decomposition(A)
+    
+    # Menghitung Ly = b
     n = len(A)
-    y_crout = np.zeros(n)
+    y = np.zeros(n)
     for i in range(n):
-        y_crout[i] = b[i]
+        y[i] = b[i]
         for j in range(i):
-            y_crout[i] -= L_crout[i][j] * y_crout[j]
+            y[i] -= L[i][j] * y[j]
 
-    # Menghitung Ux = y dengan metode Crout
-    x_crout = np.zeros(n)
+    # Menghitung Ux = y
+    x = np.zeros(n)
     for i in range(n - 1, -1, -1):
-        x_crout[i] = y_crout[i]
+        x[i] = y[i]
         for j in range(i + 1, n):
-            x_crout[i] -= U_crout[i][j] * x_crout[j]
-        x_crout[i] /= U_crout[i][i]
+            x[i] -= U[i][j] * x[j]
+        x[i] /= U[i][i]
 
-    # Menghitung Ly = b dengan metode LU Gauss
-    y_gauss = np.zeros(n)
-    for i in range(n):
-        y_gauss[i] = b[i]
-        for j in range(i):
-            y_gauss[i] -= L_gauss[i][j] * y_gauss[j]
+    return x
 
-    # Menghitung Ux = y dengan metode LU Gauss
-    x_gauss = np.zeros(n)
-    for i in range(n - 1, -1, -1):
-        x_gauss[i] = y_gauss[i]
-        for j in range(i + 1, n):
-            x_gauss[i] -= U_gauss[i][j] * x_gauss[j]
-        x_gauss[i] /= U_gauss[i][i]
-
-    return x_crout, x_gauss
-
-# Contoh penggunaan
+# Test code untuk metode invers matriks
 A = np.array([[3, 2], [4, -1]])
 b = np.array([7, 2])
+solusi_invers = solve_linear_equation(A, b)
+print("Solusi dengan metode invers matriks:")
+print(solusi_invers)
 
-solusi_crout, solusi_gauss = solve_linear_equation(A, b)
-print("Solusi dari sistem persamaan linear (menggunakan Crout):")
+# Test code untuk metode Crout Decomposition
+A = np.array([[3, 2], [4, -1]])
+b = np.array([7, 2])
+solusi_crout = solve_linear_equation_crout(A, b)
+print("\nSolusi dengan metode Crout Decomposition:")
 print(solusi_crout)
-print("Solusi dari sistem persamaan linear (menggunakan LU Gauss):")
-print(solusi_gauss)
+
+# Test code untuk metode LU Decomposition (Gauss Elimination)
+A = np.array([[3, 2], [4, -1]])
+b = np.array([7, 2])
+solusi_lu_gauss = solve_linear_equation_lu_gauss(A, b)
+print("\nSolusi dengan metode LU Decomposition (Gauss Elimination):")
+print(solusi_lu_gauss)
