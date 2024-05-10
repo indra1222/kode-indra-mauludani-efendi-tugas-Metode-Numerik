@@ -1,0 +1,55 @@
+import numpy as np
+
+def crout_decomposition(A):
+    n = len(A)
+    L = np.zeros((n, n))
+    U = np.zeros((n, n))
+
+    for i in range(n):
+        U[i][i] = 1
+
+    for k in range(n):
+        for i in range(k, n):
+            sum = 0
+            for p in range(k):
+                sum += L[i][p] * U[p][k]
+            L[i][k] = A[i][k] - sum
+
+        for j in range(k + 1, n):
+            sum = 0
+            for p in range(k):
+                sum += L[k][p] * U[p][j]
+            if L[k][k] == 0:
+                return "Error: Matriks singular"
+            U[k][j] = (A[k][j] - sum) / L[k][k]
+
+    return L, U
+
+def solve_linear_equation(A, b):
+    L, U = crout_decomposition(A)
+    
+    # Menghitung Ly = b
+    n = len(A)
+    y = np.zeros(n)
+    for i in range(n):
+        y[i] = b[i]
+        for j in range(i):
+            y[i] -= L[i][j] * y[j]
+
+    # Menghitung Ux = y
+    x = np.zeros(n)
+    for i in range(n - 1, -1, -1):
+        x[i] = y[i]
+        for j in range(i + 1, n):
+            x[i] -= U[i][j] * x[j]
+        x[i] /= U[i][i]
+
+    return x
+
+# Contoh penggunaan
+A = np.array([[3, 2], [4, -1]])
+b = np.array([7, 2])
+
+solusi = solve_linear_equation(A, b)
+print("Solusi dari sistem persamaan linear:")
+print(solusi)
