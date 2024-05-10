@@ -1,0 +1,42 @@
+import numpy as np
+
+# Fungsi untuk membandingkan solusi yang diberikan oleh kedua metode
+def compare_solutions(solusi1, solusi2):
+    if np.allclose(solusi1, solusi2):
+        print("Solusi yang diberikan oleh kedua metode sama.")
+    else:
+        print("Solusi yang diberikan oleh kedua metode berbeda.")
+
+# Pengujian fungsi solve_linear_equation menggunakan metode invers matriks
+def test_solve_linear_equation_inverse():
+    A = np.array([[3, 4], [5, 6]])
+    b = np.array([9, 11])
+    solusi_inverse = solve_linear_equation(A, b)
+    print("Solusi menggunakan metode invers matriks:", solusi_inverse)
+
+# Pengujian fungsi solve_linear_equation menggunakan metode Crout decomposition
+def test_solve_linear_equation_crout():
+    A = np.array([[3, 2], [4, -1]])
+    b = np.array([7, 2])
+    solusi_crout = solve_linear_equation(A, b)
+    print("Solusi menggunakan metode Crout decomposition:", solusi_crout)
+
+# Pengujian fungsi solve_linear_equation menggunakan metode LU Gauss decomposition
+def test_solve_linear_equation_lu_gauss():
+    A = np.array([[3, 2], [4, -1]])
+    b = np.array([7, 2])
+    solusi_lu_gauss = solve_linear_equation(A, b)
+    print("Solusi menggunakan metode LU Gauss decomposition:", solusi_lu_gauss)
+
+# Pengujian
+if __name__ == "__main__":
+    test_solve_linear_equation_inverse()
+    test_solve_linear_equation_crout()
+    test_solve_linear_equation_lu_gauss()
+
+    # Membandingkan solusi dari dua metode
+    A = np.array([[3, 2], [4, -1]])
+    b = np.array([7, 2])
+    solusi_inverse = solve_linear_equation(A, b)
+    solusi_crout = solve_linear_equation(A, b)
+    compare_solutions(solusi_inverse, solusi_crout)
