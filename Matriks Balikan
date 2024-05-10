@@ -10,7 +10,7 @@ def solve_linear_equation(A, b):
     return x
 
 # Contoh penggunaan
-A = np.array([[3, 4], [5, 6]])
+A = np.array([[3, 2], [7, 6]])
 b = np.array([9, 11])
 
 solusi = solve_linear_equation(A, b)
