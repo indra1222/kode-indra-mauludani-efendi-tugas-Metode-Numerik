@@ -1,0 +1,19 @@
+import numpy as np
+
+def solve_linear_equation(A, b):
+    # Menghitung invers dari matriks A
+    A_inv = np.linalg.inv(A)
+    
+    # Menghitung solusi dari sistem persamaan linear
+    x = np.dot(A_inv, b)
+    
+    return x
+
+# Contoh penggunaan
+A = np.array([[3, 4], [5, 6]])
+b = np.array([9, 11])
+
+solusi = solve_linear_equation(A, b)
+print("Solusi dari sistem persamaan linear adalah:")
+print(solusi)
+    
